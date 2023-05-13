@@ -1,0 +1,9 @@
+# ignore secretes
+*.toml
+
+# ignore streamlit
+.streamlit/
+
+.env
+
+app/db/
