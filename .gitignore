@@ -7,3 +7,6 @@
 .env
 
 app/db/
+
+# ignore json, which is used for storing data
+*.json

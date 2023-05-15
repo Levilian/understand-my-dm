@@ -4,10 +4,9 @@ import json
 import streamlit as st
 from sidebar import sidebar
 from index import construct_index, ask_question
-# cal_index = CalendarIndex.load() if os.path.exists(PERSIST_DIRECTORY) else None
+from unicode_converter import unicode_converter
 
 st.set_page_config(page_title='ChatHistoryGPT: Understand your DM', layout='wide')
-
 
 parent_path = pathlib.Path(__file__).parent.parent.resolve()
 
@@ -20,8 +19,12 @@ sidebar()
 def save_uploaded_file(chat_data, save_path: str):
     # Create directory if it doesn't exist
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
-    with open(save_path, "wb") as f:
-        f.write(chat_data.read())
+    with open(save_path, "w", encoding='utf-8') as f:
+        # Read the contents of the file as a binary, and parse it as a json object through unicode_converter
+        decoded_data = unicode_converter(json.loads(chat_data.read()))
+        # save ascii and unicode characters as is instead of \u escape sequences
+        json.dump(decoded_data, f, ensure_ascii=False, indent=4)
+        st.write(decoded_data)
 
 
 def upload_data():
@@ -41,9 +44,6 @@ def upload_data():
                     save_path = parent_path / 'data' / uploaded_file.name
 
                     save_uploaded_file(uploaded_file, save_path)
-                    with open(save_path, 'r') as f:
-                        json_data = json.load(f)
-                        st.write(json_data)
 
                     construct_index(save_path, st.secrets.api_credentials['OPENAI_API_KEY'])
     
